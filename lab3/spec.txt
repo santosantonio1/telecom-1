@@ -1,0 +1,19 @@
+Chamada SDR ADALM-PLUTO (2 páginas):
+Abertura e período: começa hoje, 16/11, com o Prof. Dr. Anderson Royes Terroso e termina na quarta, 25/11, com entrega no Moodle até 23h59. Cada grupo retira um kit no LEE com o Valdemir.
+Cronograma: 16/11, 18/11, 23/11 e 25/11.
+Conteúdo técnico: fundamentação, uma caixa com os parâmetros de projeto já calculados, o diagrama das cadeias de transmissão e recepção, o procedimento passo a passo e uma tabela com a configuração de cada grupo.
+Avaliação: uma imagem do resultado esperado e a rubrica de 10 pontos. A rubrica exige no relatório a comunicação nos dois sentidos, com espectro, constelação, diagrama de olho, mensagens recebidas e taxa de pacotes perdidos.
+AD 360° (1 página): adaptada à atividade com o Pluto, com espaço para o aluno e 3 colegas (4 por grupo, numa turma de 8).
+AMI (1 página): 13 questões ligadas ao plano da disciplina (Open RAN/Kubernetes, produtos P1 a P3, RP01 a RP08 e a atividade SDR).
+Códigos para os 2 grupos
+Frequências: o Grupo 01 transmite em 904 MHz e recebe em 920 MHz; o Grupo 02 faz o inverso. Assim os dois transmitem e recebem ao mesmo tempo sem interferir um no outro.
+Base legal: as duas frequências estão nas faixas que a Anatel reserva para equipamentos de radiação restrita (Ato nº 14.448/2017; Anatel).�
+Arquivos por grupo:
+um arquivo para abrir no GNU Radio Companion e usar com o Pluto;
+uma versão de teste que roda sem o rádio;
+um script para rodar pelo terminal;
+um LEIA-ME com o passo a passo.
+Testes:
+Os fluxogramas abrem e compilam sem erros no GNU Radio 3.10.
+Na versão de teste, com ruído e desvio de frequência simulados, o receptor chegou a cerca de 460 quadros por segundo sem nenhum quadro perdido.
+Sem o Pluto conectado, o script mostra uma mensagem de erro clara com o que verificar.

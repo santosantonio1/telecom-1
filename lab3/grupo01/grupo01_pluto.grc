@@ -1,0 +1,785 @@
+options:
+  parameters:
+    author: Grupo 01
+    title: Grupo 01 - Pluto (TX 904 MHz / RX 920 MHz)
+    id: grupo01_pluto
+    generate_options: qt_gui
+    output_language: python
+    run_options: prompt
+    window_size: (1000,1000)
+    catch_exceptions: 'True'
+    run: 'True'
+    description: Enlace QPSK diferencial com quadros, CRC32 e contagem de perdas
+  states:
+    state: enabled
+    coordinate:
+    - 8
+    - 8
+    rotation: 0
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+blocks:
+- name: samp_rate
+  id: variable
+  parameters:
+    value: 1e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 16
+    - 16
+    rotation: 0
+    state: enabled
+- name: sps
+  id: variable
+  parameters:
+    value: '8'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 216
+    - 16
+    rotation: 0
+    state: enabled
+- name: excess_bw
+  id: variable
+  parameters:
+    value: '0.35'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 416
+    - 16
+    rotation: 0
+    state: enabled
+- name: constel
+  id: variable
+  parameters:
+    value: digital.constellation_dqpsk().base()
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 616
+    - 16
+    rotation: 0
+    state: enabled
+- name: codigo_acesso
+  id: variable
+  parameters:
+    value: '''1010110011011101101001001110001011110010100011000010000011111100'''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 816
+    - 16
+    rotation: 0
+    state: enabled
+- name: freq_tx
+  id: variable
+  parameters:
+    value: 904e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1016
+    - 16
+    rotation: 0
+    state: enabled
+- name: freq_rx
+  id: variable
+  parameters:
+    value: 920e6
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 16
+    - 136
+    rotation: 0
+    state: enabled
+- name: nfilts
+  id: variable
+  parameters:
+    value: '32'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 216
+    - 136
+    rotation: 0
+    state: enabled
+- name: import_firdes
+  id: import
+  parameters:
+    imports: from gnuradio.filter import firdes
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 416
+    - 136
+    rotation: 0
+    state: enabled
+- name: mensagem
+  id: parameter
+  parameters:
+    label: Mensagem
+    type: str
+    value: '''Grupo 01 -> Grupo 02: ola do Pluto!'''
+    short_id: m
+    hide: none
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 616
+    - 136
+    rotation: 0
+    state: enabled
+- name: quadros_tx
+  id: epy_block
+  parameters:
+    _source_code: |
+      """
+      Gerador de quadros (TX) - Grupo 01
+
+      Quadro = codigo de acesso (64 bits) | comprimento (16 bits) x2 | payload
+      payload (56 bytes, branqueado) = sequencia (32 bits) | texto (48 bytes) | CRC32
+
+      A sequencia permite ao receptor contar quadros perdidos. O branqueamento
+      (XOR com sequencia pseudoaleatoria fixa) evita longas repeticoes de simbolos
+      que atrapalham a recuperacao de relogio e de frequencia.
+      """
+      import struct
+      import zlib
+
+      import numpy as np
+      from gnuradio import gr
+
+      CODIGO_ACESSO = '1010110011011101101001001110001011110010100011000010000011111100'
+      TAM_PAYLOAD = 56
+      BRANQUEAMENTO = np.random.default_rng(1).integers(0, 256, TAM_PAYLOAD, dtype=np.uint8)
+      CABECALHO = np.frombuffer(int(CODIGO_ACESSO, 2).to_bytes(8, 'big') + struct.pack('>HH', TAM_PAYLOAD, TAM_PAYLOAD), np.uint8)
+
+
+      class blk(gr.sync_block):
+          """Quadros TX: gera quadros continuamente (bytes empacotados)"""
+
+          def __init__(self, mensagem='Grupo 01 -> Grupo 02: ola!'):
+              gr.sync_block.__init__(self, name='Quadros TX', in_sig=None, out_sig=[np.uint8])
+              self.mensagem = mensagem
+              self.seq = 0
+              self.buf = np.zeros(0, np.uint8)
+
+          def quadro(self):
+              p = struct.pack('>I', self.seq) + self.mensagem.encode()[:48].ljust(48)
+              p += struct.pack('>I', zlib.crc32(p))
+              self.seq = (self.seq + 1) & 0xFFFFFFFF
+              return np.concatenate([CABECALHO, np.frombuffer(p, np.uint8) ^ BRANQUEAMENTO])
+
+          def work(self, input_items, output_items):
+              out = output_items[0]
+              while len(self.buf) < len(out):
+                  self.buf = np.concatenate([self.buf, self.quadro()])
+              out[:] = self.buf[:len(out)]
+              self.buf = self.buf[len(out):]
+              return len(out)
+    mensagem: mensagem
+    _io_cache: '(''Quadros TX'', ''blk'', [(''mensagem'', "''Grupo 01 -> Grupo 02: ola!''")], [], [(''0'', ''byte'', 1)], ''Quadros TX: gera quadros continuamente (bytes empacotados)'', [''mensagem''])'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 816
+    - 136
+    rotation: 0
+    state: enabled
+- name: modulador
+  id: digital_constellation_modulator
+  parameters:
+    constellation: constel
+    differential: 'True'
+    samples_per_symbol: sps
+    excess_bw: excess_bw
+    verbose: 'False'
+    log: 'False'
+    truncate: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1016
+    - 136
+    rotation: 0
+    state: enabled
+- name: amp_tx
+  id: blocks_multiply_const_vxx
+  parameters:
+    type: complex
+    const: '0.125'
+    vlen: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 16
+    - 256
+    rotation: 0
+    state: enabled
+- name: uri
+  id: parameter
+  parameters:
+    label: URI do Pluto (vazio = detectar)
+    type: str
+    value: ''''''
+    short_id: u
+    hide: none
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 216
+    - 256
+    rotation: 0
+    state: enabled
+- name: atten_tx
+  id: variable_qtgui_range
+  parameters:
+    label: Atenuacao TX (dB)
+    rangeType: float
+    value: '10'
+    start: '0'
+    stop: '60'
+    step: '1'
+    widget: counter_slider
+    orient: QtCore.Qt.Horizontal
+    min_len: '200'
+    gui_hint: 2,0,1,2
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 416
+    - 256
+    rotation: 0
+    state: enabled
+- name: pluto_tx
+  id: iio_pluto_sink
+  parameters:
+    type: fc32
+    uri: uri
+    frequency: int(freq_tx)
+    samplerate: int(samp_rate)
+    buffer_size: '32768'
+    cyclic: 'False'
+    attenuation1: atten_tx
+    len_tag_key: ''
+    filter_source: '''Auto'''
+    filter: ''
+    fpass: '0'
+    fstop: '0'
+    bandwidth: int(samp_rate)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 616
+    - 256
+    rotation: 0
+    state: enabled
+- name: pluto_rx
+  id: iio_pluto_source
+  parameters:
+    type: fc32
+    uri: uri
+    frequency: int(freq_rx)
+    samplerate: int(samp_rate)
+    buffer_size: '32768'
+    quadrature: 'True'
+    rfdc: 'True'
+    bbdc: 'True'
+    gain1: '''slow_attack'''
+    manual_gain1: '64'
+    len_tag_key: ''
+    filter_source: '''Auto'''
+    filter: ''
+    fpass: '0'
+    fstop: '0'
+    bandwidth: int(samp_rate)
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 816
+    - 256
+    rotation: 0
+    state: enabled
+- name: agc
+  id: analog_agc_xx
+  parameters:
+    type: complex
+    rate: 1e-4
+    reference: '1.0'
+    gain: '1.0'
+    max_gain: '65536'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1016
+    - 256
+    rotation: 0
+    state: enabled
+- name: fll
+  id: digital_fll_band_edge_cc
+  parameters:
+    type: cc
+    samps_per_sym: sps
+    rolloff: excess_bw
+    filter_size: '44'
+    w: '0.02'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 16
+    - 376
+    rotation: 0
+    state: enabled
+- name: sinc_simbolo
+  id: digital_pfb_clock_sync_xxx
+  parameters:
+    type: ccf
+    sps: sps
+    loop_bw: 6.28/100
+    taps: firdes.root_raised_cosine(nfilts, nfilts*sps, 1.0, excess_bw, 11*sps*nfilts)
+    filter_size: nfilts
+    init_phase: nfilts/2
+    max_dev: '1.5'
+    osps: '1'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 216
+    - 376
+    rotation: 0
+    state: enabled
+- name: costas
+  id: digital_costas_loop_cc
+  parameters:
+    w: 6.28/100
+    order: '4'
+    use_snr: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 416
+    - 376
+    rotation: 0
+    state: enabled
+- name: decisor
+  id: digital_constellation_decoder_cb
+  parameters:
+    constellation: constel
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 616
+    - 376
+    rotation: 0
+    state: enabled
+- name: dif_dec
+  id: digital_diff_decoder_bb
+  parameters:
+    coding: digital.DIFF_DIFFERENTIAL
+    modulus: '4'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 816
+    - 376
+    rotation: 0
+    state: enabled
+- name: mapa
+  id: digital_map_bb
+  parameters:
+    map: '[0, 1, 3, 2]'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1016
+    - 376
+    rotation: 0
+    state: enabled
+- name: desempacota
+  id: blocks_unpack_k_bits_bb
+  parameters:
+    k: '2'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 16
+    - 496
+    rotation: 0
+    state: enabled
+- name: correlator
+  id: digital_correlate_access_code_xx_ts
+  parameters:
+    type: byte
+    access_code: codigo_acesso
+    threshold: '2'
+    tagname: '''packet_len'''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 216
+    - 496
+    rotation: 0
+    state: enabled
+- name: empacota
+  id: blocks_repack_bits_bb
+  parameters:
+    k: '1'
+    l: '8'
+    len_tag_key: '''packet_len'''
+    align_output: 'False'
+    endianness: gr.GR_MSB_FIRST
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 416
+    - 496
+    rotation: 0
+    state: enabled
+- name: para_pdu
+  id: pdu_tagged_stream_to_pdu
+  parameters:
+    type: byte
+    tag: '''packet_len'''
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 616
+    - 496
+    rotation: 0
+    state: enabled
+- name: quadros_rx
+  id: epy_block
+  parameters:
+    _source_code: |
+      """
+      Receptor de quadros (RX) - Grupo 01
+
+      Recebe os PDUs do 'Tagged Stream to PDU', desfaz o branqueamento, confere o
+      CRC32 e conta quadros perdidos pelos saltos no numero de sequencia.
+      A cada 'intervalo' segundos imprime: quadros/s, recebidos, perdidos (taxa),
+      CRC ruim e a ultima mensagem recebida.
+      """
+      import struct
+      import threading
+      import time
+      import zlib
+
+      import numpy as np
+      import pmt
+      from gnuradio import gr
+
+      TAM_PAYLOAD = 56
+      BRANQUEAMENTO = np.random.default_rng(1).integers(0, 256, TAM_PAYLOAD, dtype=np.uint8)
+
+
+      class blk(gr.basic_block):
+          """Quadros RX: confere CRC, conta perdas e imprime mensagens"""
+
+          def __init__(self, intervalo=1.0):
+              gr.basic_block.__init__(self, name='Quadros RX', in_sig=None, out_sig=None)
+              self.intervalo = intervalo
+              self.message_port_register_in(pmt.intern('pdus'))
+              self.set_msg_handler(pmt.intern('pdus'), self.trata)
+              self.recebidos = self.perdidos = self.crc_ruim = 0
+              self.ultimo_seq = None
+              self.ultima_msg = ''
+              self.rodando = False
+
+          def trata(self, msg):
+              b = np.array(pmt.u8vector_elements(pmt.cdr(msg)), np.uint8)
+              if len(b) != TAM_PAYLOAD:
+                  self.crc_ruim += 1
+                  return
+              b = (b ^ BRANQUEAMENTO).tobytes()
+              if zlib.crc32(b[:-4]) != struct.unpack('>I', b[-4:])[0]:
+                  self.crc_ruim += 1  # o quadro vira um salto de sequencia e conta como perdido
+                  return
+              seq = struct.unpack('>I', b[:4])[0]
+              if self.ultimo_seq is not None:
+                  salto = (seq - self.ultimo_seq - 1) & 0xFFFFFFFF
+                  if salto < 100000:  # salto enorme = o transmissor reiniciou; so ressincroniza
+                      self.perdidos += salto
+              self.ultimo_seq = seq
+              self.recebidos += 1
+              self.ultima_msg = b[4:52].decode(errors='replace').rstrip()
+
+          def start(self):
+              self.rodando = True
+              threading.Thread(target=self.relatorio, daemon=True).start()
+              return True
+
+          def stop(self):
+              self.rodando = False
+              return True
+
+          def relatorio(self):
+              anterior = 0
+              while self.rodando:
+                  time.sleep(self.intervalo)
+                  r, p = self.recebidos, self.perdidos
+                  taxa = 100.0 * p / (r + p) if r + p else 0.0
+                  print(f'[RX] {(r - anterior) / self.intervalo:5.0f} quadros/s | recebidos {r} | '
+                        f'perdidos {p} ({taxa:.2f} %) | CRC ruim {self.crc_ruim} | msg: "{self.ultima_msg}"',
+                        flush=True)
+                  anterior = r
+    intervalo: '1.0'
+    _io_cache: '(''Quadros RX'', ''blk'', [(''intervalo'', ''1.0'')], [(''pdus'', ''message'', 1)], [], ''Quadros RX: confere CRC, conta perdas e imprime mensagens'', [''intervalo''])'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 816
+    - 496
+    rotation: 0
+    state: enabled
+- name: espectro
+  id: qtgui_freq_sink_x
+  parameters:
+    type: complex
+    name: '"Espectro (0 = recebido, 1 = transmitido)"'
+    fftsize: '1024'
+    fc: '0'
+    bw: samp_rate
+    average: '0.2'
+    ymin: '-120'
+    ymax: '10'
+    nconnections: '2'
+    gui_hint: 0,0,1,2
+    label1: '"RX"'
+    label2: '"TX"'
+    color1: '"blue"'
+    color2: '"red"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1016
+    - 496
+    rotation: 0
+    state: enabled
+- name: constelacao
+  id: qtgui_const_sink_x
+  parameters:
+    type: complex
+    name: '"Constelacao (apos Costas)"'
+    size: '1024'
+    xmin: '-2'
+    xmax: '2'
+    ymin: '-2'
+    ymax: '2'
+    nconnections: '1'
+    gui_hint: 1,0,1,1
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 16
+    - 616
+    rotation: 0
+    state: enabled
+- name: filtro_casado
+  id: fir_filter_xxx
+  parameters:
+    type: ccf
+    decim: '1'
+    taps: firdes.root_raised_cosine(1.0, sps, 1.0, excess_bw, 11*sps)
+    samp_delay: '0'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 216
+    - 616
+    rotation: 0
+    state: enabled
+- name: costas_olho
+  id: digital_costas_loop_cc
+  parameters:
+    w: 6.28/400
+    order: '4'
+    use_snr: 'False'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 416
+    - 616
+    rotation: 0
+    state: enabled
+- name: olho
+  id: qtgui_eye_sink_x
+  parameters:
+    type: complex
+    name: '"Diagrama de olho"'
+    size: '2048'
+    samp_per_symbol: sps
+    srate: samp_rate
+    autoscale: 'True'
+    nconnections: '1'
+    gui_hint: 1,1,1,1
+    ylabel: '"Amplitude"'
+    label1: '"I"'
+    label2: '"Q"'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 616
+    - 616
+    rotation: 0
+    state: enabled
+connections:
+- - quadros_tx
+  - '0'
+  - modulador
+  - '0'
+- - modulador
+  - '0'
+  - amp_tx
+  - '0'
+- - amp_tx
+  - '0'
+  - pluto_tx
+  - '0'
+- - pluto_rx
+  - '0'
+  - agc
+  - '0'
+- - agc
+  - '0'
+  - fll
+  - '0'
+- - fll
+  - '0'
+  - sinc_simbolo
+  - '0'
+- - sinc_simbolo
+  - '0'
+  - costas
+  - '0'
+- - costas
+  - '0'
+  - decisor
+  - '0'
+- - decisor
+  - '0'
+  - dif_dec
+  - '0'
+- - dif_dec
+  - '0'
+  - mapa
+  - '0'
+- - mapa
+  - '0'
+  - desempacota
+  - '0'
+- - desempacota
+  - '0'
+  - correlator
+  - '0'
+- - correlator
+  - '0'
+  - empacota
+  - '0'
+- - empacota
+  - '0'
+  - para_pdu
+  - '0'
+- - para_pdu
+  - pdus
+  - quadros_rx
+  - pdus
+- - pluto_rx
+  - '0'
+  - espectro
+  - '0'
+- - amp_tx
+  - '0'
+  - espectro
+  - '1'
+- - costas
+  - '0'
+  - constelacao
+  - '0'
+- - fll
+  - '0'
+  - filtro_casado
+  - '0'
+- - filtro_casado
+  - '0'
+  - costas_olho
+  - '0'
+- - costas_olho
+  - '0'
+  - olho
+  - '0'
+metadata:
+  file_format: 1
+  grc_version: 3.10.12.0
