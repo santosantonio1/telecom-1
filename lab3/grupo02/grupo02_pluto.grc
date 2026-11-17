@@ -29,8 +29,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 16
-    - 16
+    - 240
+    - 8
     rotation: 0
     state: enabled
 - name: sps
@@ -42,8 +42,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 216
-    - 16
+    - 390
+    - 8
     rotation: 0
     state: enabled
 - name: excess_bw
@@ -55,8 +55,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 416
-    - 16
+    - 540
+    - 8
     rotation: 0
     state: enabled
 - name: constel
@@ -68,8 +68,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 616
-    - 16
+    - 840
+    - 8
     rotation: 0
     state: enabled
 - name: codigo_acesso
@@ -81,8 +81,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 816
-    - 16
+    - 1030
+    - 8
     rotation: 0
     state: enabled
 - name: freq_tx
@@ -94,8 +94,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 1016
-    - 16
+    - 1230
+    - 8
     rotation: 0
     state: enabled
 - name: freq_rx
@@ -107,8 +107,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 16
-    - 136
+    - 1380
+    - 8
     rotation: 0
     state: enabled
 - name: nfilts
@@ -120,8 +120,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 216
-    - 136
+    - 690
+    - 8
     rotation: 0
     state: enabled
 - name: import_firdes
@@ -133,8 +133,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 416
-    - 136
+    - 240
+    - 110
     rotation: 0
     state: enabled
 - name: mensagem
@@ -150,8 +150,21 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 616
-    - 136
+    - 420
+    - 110
+    rotation: 0
+    state: enabled
+- name: nota_tx
+  id: note
+  parameters:
+    note: TX e radio Pluto
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 330
     rotation: 0
     state: enabled
 - name: quadros_tx
@@ -209,8 +222,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 816
-    - 136
+    - 8
+    - 380
     rotation: 0
     state: enabled
 - name: modulador
@@ -228,8 +241,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 1016
-    - 136
+    - 240
+    - 380
     rotation: 0
     state: enabled
 - name: amp_tx
@@ -243,8 +256,21 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 16
-    - 256
+    - 520
+    - 380
+    rotation: 0
+    state: enabled
+- name: vs_tx
+  id: virtual_sink
+  parameters:
+    stream_id: sinal_tx
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 620
+    - 560
     rotation: 0
     state: enabled
 - name: uri
@@ -260,8 +286,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 216
-    - 256
+    - 660
+    - 110
     rotation: 0
     state: enabled
 - name: atten_tx
@@ -282,8 +308,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 416
-    - 256
+    - 900
+    - 110
     rotation: 0
     state: enabled
 - name: pluto_tx
@@ -307,8 +333,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 616
-    - 256
+    - 740
+    - 380
     rotation: 0
     state: enabled
 - name: pluto_rx
@@ -335,8 +361,99 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 816
-    - 256
+    - 960
+    - 380
+    rotation: 0
+    state: enabled
+- name: vs_rx
+  id: virtual_sink
+  parameters:
+    stream_id: sinal_rx
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1200
+    - 380
+    rotation: 0
+    state: enabled
+- name: nota_rx
+  id: note
+  parameters:
+    note: 'RX 1: sincronismo'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 650
+    rotation: 0
+    state: enabled
+- name: vr_rx
+  id: virtual_source
+  parameters:
+    stream_id: sinal_rx
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 720
+    rotation: 0
+    state: enabled
+- name: vs_fll
+  id: virtual_sink
+  parameters:
+    stream_id: apos_fll
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 570
+    - 860
+    rotation: 0
+    state: enabled
+- name: vs_simb
+  id: virtual_sink
+  parameters:
+    stream_id: simbolos
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 1290
+    - 720
+    rotation: 0
+    state: enabled
+- name: nota_rx2
+  id: note
+  parameters:
+    note: 'RX 2: bits e quadros'
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 930
+    rotation: 0
+    state: enabled
+- name: vr_simb
+  id: virtual_source
+  parameters:
+    stream_id: simbolos
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 1000
     rotation: 0
     state: enabled
 - name: agc
@@ -352,8 +469,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 1016
-    - 256
+    - 190
+    - 700
     rotation: 0
     state: enabled
 - name: fll
@@ -369,8 +486,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 16
-    - 376
+    - 360
+    - 700
     rotation: 0
     state: enabled
 - name: sinc_simbolo
@@ -389,8 +506,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 216
-    - 376
+    - 720
+    - 700
     rotation: 0
     state: enabled
 - name: costas
@@ -404,8 +521,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 416
-    - 376
+    - 990
+    - 700
     rotation: 0
     state: enabled
 - name: decisor
@@ -417,8 +534,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 616
-    - 376
+    - 190
+    - 980
     rotation: 0
     state: enabled
 - name: dif_dec
@@ -431,8 +548,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 816
-    - 376
+    - 400
+    - 980
     rotation: 0
     state: enabled
 - name: mapa
@@ -444,8 +561,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 1016
-    - 376
+    - 580
+    - 980
     rotation: 0
     state: enabled
 - name: desempacota
@@ -457,8 +574,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 16
-    - 496
+    - 720
+    - 980
     rotation: 0
     state: enabled
 - name: correlator
@@ -473,8 +590,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 216
-    - 496
+    - 870
+    - 980
     rotation: 0
     state: enabled
 - name: empacota
@@ -490,8 +607,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 416
-    - 496
+    - 1130
+    - 980
     rotation: 0
     state: enabled
 - name: para_pdu
@@ -504,8 +621,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 616
-    - 496
+    - 1320
+    - 980
     rotation: 0
     state: enabled
 - name: quadros_rx
@@ -590,8 +707,73 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 816
-    - 496
+    - 1540
+    - 980
+    rotation: 0
+    state: enabled
+- name: nota_graf
+  id: note
+  parameters:
+    note: Graficos
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 1100
+    rotation: 0
+    state: enabled
+- name: vr_rx_g
+  id: virtual_source
+  parameters:
+    stream_id: sinal_rx
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 1150
+    rotation: 0
+    state: enabled
+- name: vr_tx_g
+  id: virtual_source
+  parameters:
+    stream_id: sinal_tx
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 8
+    - 1220
+    rotation: 0
+    state: enabled
+- name: vr_simb_g
+  id: virtual_source
+  parameters:
+    stream_id: simbolos
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 420
+    - 1150
+    rotation: 0
+    state: enabled
+- name: vr_fll_g
+  id: virtual_source
+  parameters:
+    stream_id: apos_fll
+  states:
+    bus_sink: false
+    bus_source: false
+    bus_structure: null
+    coordinate:
+    - 850
+    - 1150
     rotation: 0
     state: enabled
 - name: espectro
@@ -616,8 +798,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 1016
-    - 496
+    - 190
+    - 1150
     rotation: 0
     state: enabled
 - name: constelacao
@@ -637,8 +819,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 16
-    - 616
+    - 600
+    - 1150
     rotation: 0
     state: enabled
 - name: filtro_casado
@@ -653,8 +835,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 216
-    - 616
+    - 1030
+    - 1150
     rotation: 0
     state: enabled
 - name: costas_olho
@@ -668,8 +850,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 416
-    - 616
+    - 1230
+    - 1150
     rotation: 0
     state: enabled
 - name: olho
@@ -691,8 +873,8 @@ blocks:
     bus_source: false
     bus_structure: null
     coordinate:
-    - 616
-    - 616
+    - 1450
+    - 1150
     rotation: 0
     state: enabled
 connections:
@@ -706,9 +888,17 @@ connections:
   - '0'
 - - amp_tx
   - '0'
+  - vs_tx
+  - '0'
+- - amp_tx
+  - '0'
   - pluto_tx
   - '0'
 - - pluto_rx
+  - '0'
+  - vs_rx
+  - '0'
+- - vr_rx
   - '0'
   - agc
   - '0'
@@ -725,6 +915,14 @@ connections:
   - costas
   - '0'
 - - costas
+  - '0'
+  - vs_simb
+  - '0'
+- - fll
+  - '0'
+  - vs_fll
+  - '0'
+- - vr_simb
   - '0'
   - decisor
   - '0'
@@ -756,19 +954,19 @@ connections:
   - pdus
   - quadros_rx
   - pdus
-- - pluto_rx
+- - vr_rx_g
   - '0'
   - espectro
   - '0'
-- - amp_tx
+- - vr_tx_g
   - '0'
   - espectro
   - '1'
-- - costas
+- - vr_simb_g
   - '0'
   - constelacao
   - '0'
-- - fll
+- - vr_fll_g
   - '0'
   - filtro_casado
   - '0'
